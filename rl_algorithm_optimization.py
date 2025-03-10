@@ -5,156 +5,89 @@ import time
 from stable_baselines3 import PPO
 from stable_baselines3.common.env_checker import check_env
 import heapq
-from collections import Counter, defaultdict
 import matplotlib.pyplot as plt
 import seaborn as sns
+import math
 
 
 def compare_algorithms(array):
     results = {}
 
-    # Bubble Sort
+    # Bubble Sort (Brute Force)
     bubble_arr = array.copy()
     bubble_sorted, bubble_time = bubble_sort(bubble_arr)
     results['Bubble Sort'] = bubble_time
 
-    # Merge Sort
+    # Merge Sort (Divide and Conquer)
     merge_arr = array.copy()
     start_time = time.time()
     merge_sorted = merge_sort(merge_arr)
     merge_time = time.time() - start_time
     results['Merge Sort'] = merge_time
 
+    # Fibonacci (Dynamic Programming) - Example for Performance Comparison
+    n = 30  # You can change this value depending on your performance testing
+    start_time = time.time()
+    fibonacci_result = fibonacci(n)
+    fibonacci_time = time.time() - start_time
+    results['Fibonacci (DP)'] = fibonacci_time
+
+    # Huffman Coding (Greedy Approach)
+    start_time = time.time()
+    huffman_result = huffman_coding("this is a test sentence")
+    huffman_time = time.time() - start_time
+    results['Huffman Coding'] = huffman_time
+
+    # N-Queens Problem (Backtracking)
+    n_queens_start_time = time.time()
+    n_queens_result = n_queens(8)  # Solve the 8-Queens problem
+    n_queens_time = time.time() - n_queens_start_time
+    results['N-Queens Problem'] = n_queens_time
+
     return results
 
 
-def plot_results(results):
-    sns.barplot(x=list(results.keys()), y=list(results.values()))
-    plt.title('Comparison of Algorithm Efficiency')
-    plt.xlabel('Algorithm')
-    plt.ylabel('Time (seconds)')
+def plot_theoretical_complexities():
+    # Generate a range of n values
+    n_values = np.arange(1, 21)
+
+    # Theoretical time complexities
+    bubble_sort_complexity = n_values ** 2
+    merge_sort_complexity = n_values * np.log2(n_values)
+    fibonacci_complexity = 2 ** n_values
+
+    # Approximate complexities for Huffman Coding (O(n)) and N-Queens (O(n!))
+    huffman_complexity = n_values  # Linear complexity for Huffman Coding (O(n))
+    n_queens_complexity = np.array([math.factorial(n) for n in n_values])  # Exponential complexity for N-Queens (O(n!))
+
+    # Create a single plot
+    plt.figure(figsize=(10, 6))
+
+    # Plot all three complexities
+    plt.plot(n_values, bubble_sort_complexity, label='Bubble Sort (O(n^2))', color='darkblue', linewidth=2)
+    plt.plot(n_values, merge_sort_complexity, label='Merge Sort (O(n log n))', color='green', linewidth=2)
+    plt.plot(n_values, fibonacci_complexity, label='Fibonacci (O(2^n))', color='red', linewidth=2)
+
+    # Plot the approximations for Huffman and N-Queens
+    plt.plot(n_values, huffman_complexity, label='Huffman Coding (O(n))', color='purple', linestyle='--', linewidth=2)
+    plt.plot(n_values, n_queens_complexity, label='N-Queens (O(n!))', color='orange', linestyle='--', linewidth=2)
+
+    # Set the title and labels
+    plt.title('Comparison of Time Complexities', fontsize=14, fontweight='bold')
+    plt.xlabel('Input Size (n)', fontsize=12)
+    plt.ylabel('Time Complexity (Operations)', fontsize=12)
+
+    # Set logarithmic scale for better visualization
+    plt.yscale('log')
+
+    # Show the legend
+    plt.legend(fontsize=12)
+
+    # Show the plot
+    plt.tight_layout()
     plt.show()
 
 
-# Brute Force: Bubble Sort
-
-def bubble_sort(arr):
-    n = len(arr)
-    start_time = time.time()
-    for i in range(n):
-        for j in range(0, n - i - 1):
-            if arr[j] > arr[j + 1]:
-                arr[j], arr[j + 1] = arr[j + 1], arr[j]
-    end_time = time.time()
-    return arr, end_time - start_time
-
-
-# Divide and Conquer: Merge Sort
-
-def merge_sort(arr):
-    if len(arr) <= 1:
-        return arr
-    mid = len(arr) // 2
-    left = merge_sort(arr[:mid])
-    right = merge_sort(arr[mid:])
-    return merge(left, right)
-
-
-def merge(left, right):
-    result = []
-    i = j = 0
-    while i < len(left) and j < len(right):
-        if left[i] <= right[j]:
-            result.append(left[i])
-            i += 1
-        else:
-            result.append(right[j])
-            j += 1
-    result.extend(left[i:])
-    result.extend(right[j:])
-    return result
-
-
-# Dynamic Programming: Fibonacci
-
-def fibonacci(n):
-    fib = [0, 1]
-    for i in range(2, n + 1):
-        fib.append(fib[i - 1] + fib[i - 2])
-    return fib[n]
-
-
-# Greedy Approach: Huffman Coding
-
-def huffman_encoding(freq):
-    heap = [[weight, [symbol, '']] for symbol, weight in freq.items()]
-    heapq.heapify(heap)
-    while len(heap) > 1:
-        lo = heapq.heappop(heap)
-        hi = heapq.heappop(heap)
-        for pair in lo[1:]:
-            pair[1] = '0' + pair[1]
-        for pair in hi[1:]:
-            pair[1] = '1' + pair[1]
-        heapq.heappush(heap, [lo[0] + hi[0]] + lo[1:] + hi[1:])
-    return sorted(heapq.heappop(heap)[1:], key=lambda p: (len(p[-1]), p))
-
-
-# Backtracking: N-Queens Problem
-
-def n_queens(N):
-    def solve(queens, xy_dif, xy_sum):
-        p = len(queens)
-        if p == N:
-            result.append(queens)
-            return None
-        for q in range(N):
-            if q not in queens and p - q not in xy_dif and p + q not in xy_sum:
-                solve(queens + [q], xy_dif + [p - q], xy_sum + [p + q])
-
-    result = []
-    solve([], [], [])
-    return result
-
-
-# Reinforcement Learning - Sorting Environment
-class SortingEnv(gym.Env):
-    def __init__(self, array):
-        super(SortingEnv, self).__init__()
-        self.array = array
-        self.action_space = gym.spaces.Discrete(len(array) - 1)
-        self.observation_space = gym.spaces.Box(
-            low=0, high=np.max(array), shape=(len(array),), dtype=np.int32)
-
-    def reset(self):
-        self.array = np.random.randint(0, 100, len(self.array))
-        return self.array
-
-    def step(self, action):
-        reward = 0
-        if self.array[action] > self.array[action + 1]:
-            self.array[action], self.array[action +
-                                           1] = self.array[action + 1], self.array[action]
-            reward = 1
-        done = np.all(self.array[:-1] <= self.array[1:])
-        return self.array, reward, done, {}
-
-
-def train_rl_agent(array):
-    env = SortingEnv(array)
-    model = PPO('MlpPolicy', env, verbose=0)
-    model.learn(total_timesteps=1000)
-    return model
-
-
 if __name__ == "__main__":
-    array_to_sort = np.random.randint(0, 100, 10)
-    print("\nOriginal array:", array_to_sort)
-
-    # Compare Algorithm Efficiency
-    results = compare_algorithms(array_to_sort)
-    plot_results(results)
-
-    # Train Reinforcement Learning Agent
-    model = train_rl_agent(array_to_sort)
-    print("\nReinforcement Learning agent training completed.")
+    # Show the time complexity graph
+    plot_theoretical_complexities()
