@@ -21,7 +21,7 @@ This project demonstrates the use of various algorithmic techniques and Reinforc
 ## 📥 Installation
 Clone the repository:
 ```bash
- git clone https://github.com/your-actual-username/RL-Algorithm-Optimization.git
+ git clone https://github.com/engjengjra/RL-Algorithm-Optimization.git
  cd RL-Algorithm-Optimization
 ```
 
