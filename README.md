@@ -58,7 +58,4 @@ To run the project:
 - Experimenting with different RL algorithms for enhanced sorting performance.
 - Comparing performance with additional sorting algorithms.
 
-## 📚 References
-- [OpenAI Gym Documentation](https://www.gymlibrary.dev/)
-- [Stable-Baselines3 Documentation](https://stable-baselines3.readthedocs.io/)
 
